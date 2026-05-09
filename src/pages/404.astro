@@ -1,0 +1,60 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="404 · Public Labs" description="Diese Route existiert nicht." noindex={true}>
+  <div class="err-wrap">
+    <div class="err-eyebrow">BRAUM · LABS · 404</div>
+    <h1 class="err-title">Diese Route gibt es nicht.</h1>
+    <p class="err-body">
+      Möglicherweise ein Tippfehler, eine alte URL, oder ein Experiment, das wieder eingerollt wurde.
+    </p>
+    <div class="err-actions">
+      <a class="btn primary" href="/">← Zur Labs-Übersicht</a>
+      <a class="btn secondary" href="/ai-stack-fit">AI-Stack-Fit öffnen</a>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .err-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 120px 24px 80px;
+    text-align: center;
+  }
+  .err-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mint);
+    margin-bottom: 32px;
+  }
+  .err-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin: 0 0 24px;
+    text-wrap: balance;
+  }
+  .err-body {
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--fg-muted);
+    margin: 0 0 48px;
+    max-width: 56ch;
+    margin-left: auto;
+    margin-right: auto;
+    text-wrap: pretty;
+  }
+  .err-actions {
+    display: inline-flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+</style>

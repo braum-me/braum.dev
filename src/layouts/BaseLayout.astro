@@ -1,0 +1,114 @@
+---
+import { ClientRouter } from "astro:transitions";
+import { env } from "~/lib/env.ts";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const {
+  title = "Public Labs",
+  description = "Experimente, Tools, halbfertige Ideen.",
+  noindex = false,
+} = Astro.props;
+
+const siteUrl = env("PUBLIC_SITE_URL") ?? Astro.site?.toString() ?? "https://braum.dev";
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
+
+const umamiScript = env("UMAMI_SCRIPT_URL");
+const umamiWebsiteId = env("UMAMI_WEBSITE_ID");
+const umamiEnabled = Boolean(umamiScript && umamiWebsiteId);
+
+// Deterministic-ish ambient particles, generated server-side once.
+const PARTICLE_COUNT = 26;
+const seed = Math.floor(Date.now() / (1000 * 60 * 30));
+let prng = seed || 1;
+const rand = (): number => {
+  prng = (prng * 1664525 + 1013904223) % 0xffffffff;
+  return prng / 0xffffffff;
+};
+
+const particles = Array.from({ length: PARTICLE_COUNT }, () => {
+  const tx = rand() * 100;
+  const ty = rand() * 100;
+  const dur = 22 + rand() * 26;
+  const delay = -rand() * dur;
+  const size = 1.2 + rand() * 1.6;
+  const op = 0.18 + rand() * 0.5;
+  const isMint = rand() < 0.18;
+  return {
+    tx: tx.toFixed(2),
+    ty: ty.toFixed(2),
+    dur: dur.toFixed(1),
+    delay: delay.toFixed(1),
+    size: size.toFixed(2),
+    op: op.toFixed(2),
+    isMint,
+  };
+});
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#051E16" />
+
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content="Public Labs" />
+    <meta property="og:locale" content="de_DE" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    {
+      umamiEnabled && (
+        <script is:inline defer src={umamiScript} data-website-id={umamiWebsiteId} data-do-not-track="true" />
+      )
+    }
+    <ClientRouter />
+  </head>
+  <body>
+    <div class="atmosphere" aria-hidden="true" transition:persist transition:name="atmosphere">
+      <div class="glow1"></div>
+      <div class="glow2"></div>
+      <div class="vignette"></div>
+    </div>
+    <div class="lab-grid-bg" aria-hidden="true" transition:persist transition:name="lab-grid"></div>
+    <div class="atmosphere-particles" aria-hidden="true" transition:persist transition:name="particles">
+      {
+        particles.map((p) => (
+          <span
+            class:list={["particle", p.isMint && "mint"]}
+            style={`--tx:${p.tx}%;--ty:${p.ty}%;--dur:${p.dur}s;--delay:${p.delay}s;--size:${p.size}px;--op:${p.op}`}
+          />
+        ))
+      }
+    </div>
+    <div class="grain-fixed" aria-hidden="true" transition:persist transition:name="grain"></div>
+
+    <main class="relative z-[1] min-h-screen">
+      <slot />
+    </main>
+
+    <script>
+      import "~/scripts/animations.client.ts";
+    </script>
+  </body>
+</html>

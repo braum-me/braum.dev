@@ -1,0 +1,480 @@
+---
+import LabBoot from "~/components/labs/shared/LabBoot.astro";
+import LabFooter from "~/components/labs/shared/LabFooter.astro";
+import LabHeader from "~/components/labs/shared/LabHeader.astro";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+interface LabTile {
+  id: string;
+  slug: string;
+  status: "live" | "wip" | "soon";
+  category: string;
+  title: string;
+  description: string;
+  detailHref: string;
+  /** When true, the tile opens in a new tab (lab lives on its own domain) */
+  external?: boolean;
+}
+
+const tiles: LabTile[] = [
+  {
+    id: "ai-stack-fit",
+    slug: "ai-stack-fit",
+    status: "live",
+    category: "AI · CONSULTING",
+    title: "AI-Stack-Fit",
+    description:
+      "Welcher AI-Stack passt zu Ihrem Unternehmen. Größe, Branche, Strategie - in 90 Sekunden zur Empfehlung mit Synergie-Check.",
+    detailHref: "https://braum.org",
+    external: true,
+  },
+  {
+    id: "agi-jetzt",
+    slug: "agi-jetzt",
+    status: "live",
+    category: "EXPERIMENT",
+    title: "agi.jetzt",
+    description:
+      "Was tun wir, wenn AGI morgen ankommt - Notizbuch, das offen mitgedacht wird.",
+    detailHref: "/labs/agi-jetzt",
+  },
+  {
+    id: "next",
+    slug: "next",
+    status: "soon",
+    category: "WIP",
+    title: "Nächstes Experiment",
+    description: "Slot ist offen. Vorschläge willkommen.",
+    detailHref: "#",
+  },
+];
+
+const liveCount = tiles.filter((t) => t.status === "live").length;
+const totalCount = tiles.length;
+---
+
+<BaseLayout
+  title="Public Labs"
+  description="Experimente, Tools, halbfertige Ideen. Selbst gehostet, selbst gebaut."
+>
+  <div class="labs-page">
+    <LabHeader liveCount={liveCount} totalCount={totalCount} />
+
+    <section class="labs-hero" data-anim-group="hero">
+      <h1 class="labs-title" data-anim="title">
+        <span class="labs-title-text">Braum Labs</span><span class="mint-dot"></span>
+      </h1>
+      <p class="labs-sub" data-anim="sub">
+        Experimente, Tools, halbfertige Ideen. Was hier landet, läuft auf eigener Infrastruktur und ist nicht poliert
+        für ein Auditorium.
+      </p>
+
+      <div class="labs-hero-meta" data-anim-group="meta">
+        <div class="labs-meta-cell" data-anim="meta-cell">
+          <div class="labs-meta-label">RUNTIME</div>
+          <div class="labs-meta-val">SSR · Node 22</div>
+        </div>
+        <div class="labs-meta-cell" data-anim="meta-cell">
+          <div class="labs-meta-label">REGION</div>
+          <div class="labs-meta-val">DE · Sinntal</div>
+        </div>
+        <div class="labs-meta-cell" data-anim="meta-cell">
+          <div class="labs-meta-label">HOSTING</div>
+          <div class="labs-meta-val">selfhosted</div>
+        </div>
+        <div class="labs-meta-cell" data-anim="meta-cell">
+          <div class="labs-meta-label">SOURCE</div>
+          <div class="labs-meta-val">
+            <a href="https://github.com/braum-me/braum.dev" target="_blank" rel="noreferrer noopener">github ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="labs-grid-wrap">
+      <div class="labs-grid-eyebrow">
+        <span class="labs-grid-label" data-anim="typewriter">// labs ─ index</span>
+        <span class="labs-grid-counter">[{tiles.length} entries]</span>
+      </div>
+
+      <div class="labs-grid">
+        {
+          tiles.map((tile, i) => {
+            const idx = String(i + 1).padStart(2, "0");
+            const isLive = tile.status === "live";
+            return (
+              <a
+                class:list={["lab-tile", `is-${tile.status}`]}
+                href={tile.detailHref}
+                target={tile.external ? "_blank" : undefined}
+                rel={tile.external ? "noreferrer noopener" : undefined}
+                data-lab={tile.id}
+                data-anim="tile"
+                data-track="lab.tile.click"
+                data-track-prop-slug={tile.slug}
+                data-track-prop-status={tile.status}
+                data-track-prop-target={tile.external ? "external" : "internal"}
+                aria-disabled={tile.detailHref === "#" ? "true" : undefined}
+              >
+                <span class="corner tl" aria-hidden="true" />
+                <span class="corner tr" aria-hidden="true" />
+                <span class="corner bl" aria-hidden="true" />
+                <span class="corner br" aria-hidden="true" />
+
+                <header class="lab-tile-head">
+                  <span class="lab-tile-id">L_{idx}</span>
+                  <span class:list={["lab-tile-status", tile.status]}>
+                    <span class="lab-tile-dot" />
+                    <span>{isLive ? "LIVE" : "COMING SOON"}</span>
+                  </span>
+                </header>
+
+                <div class="lab-tile-cat" transition:name={`tile-cat-${tile.slug}`}>{tile.category}</div>
+
+                <h2
+                  class="lab-tile-title"
+                  transition:name={`tile-title-${tile.slug}`}
+                >
+                  {tile.title}
+                </h2>
+                <p class="lab-tile-desc">{tile.description}</p>
+
+                {isLive && (
+                  <div class="lab-tile-cta">
+                    <span class="lab-tile-cta-label">{tile.external ? "Lab öffnen" : "Mehr erfahren"}</span>
+                    <span class="lab-tile-cta-glyph" aria-hidden="true">{tile.external ? "↗" : "→"}</span>
+                  </div>
+                )}
+                {!isLive && (
+                  <div class="lab-tile-cta soft">
+                    <span class="lab-tile-cta-label">In Vorbereitung</span>
+                  </div>
+                )}
+              </a>
+            );
+          })
+        }
+      </div>
+    </section>
+
+    <section class="labs-disclaimer">
+      <div class="labs-disclaimer-inner">
+        <div class="labs-disclaimer-eyebrow">// hinweis</div>
+        <p>
+          Tools hier sind Experimente, kein Beratungsersatz. Geht es um konkrete Make-or-Buy-Fragen, Stack-Audits oder
+          Migrationen, ist das ein Job für <a href="https://braum.consulting">braum.consulting</a> - nicht für ein
+          Schnell-Tool im Lab.
+        </p>
+      </div>
+    </section>
+
+    <LabFooter />
+  </div>
+
+  <LabBoot id="∞" title="Public Labs" mode="cold" once="lab-boot-cold" />
+</BaseLayout>
+
+<style>
+  .labs-page {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 32px 56px 48px;
+    position: relative;
+  }
+
+  .mint-dot {
+    display: inline-block;
+    width: 0.18em;
+    height: 0.18em;
+    margin-left: 0.06em;
+    vertical-align: baseline;
+    border-radius: 999px;
+    background: var(--mint);
+    transform: translateY(-0.05em);
+    animation: dot-breath 3.4s ease-in-out infinite;
+  }
+
+  .labs-hero {
+    padding: 88px 0 56px;
+  }
+  .labs-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(56px, 9vw, 132px);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin: 0 0 24px;
+    color: var(--cream);
+  }
+  .labs-title-text {
+    display: inline-block;
+  }
+  .labs-sub {
+    font-family: var(--font-body);
+    font-size: clamp(16px, 1.6vw, 19px);
+    line-height: 1.45;
+    color: var(--fg-muted);
+    max-width: 64ch;
+    margin: 0 0 48px;
+  }
+
+  .labs-hero-meta {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, max-content));
+    gap: 32px 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    max-width: 720px;
+  }
+  .labs-meta-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    margin-bottom: 6px;
+  }
+  .labs-meta-val {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--cream);
+    letter-spacing: 0.02em;
+  }
+  .labs-meta-val a {
+    color: var(--mint);
+    border-bottom: 1px dashed rgba(0, 200, 150, 0.4);
+  }
+
+  .labs-grid-wrap {
+    margin-bottom: 64px;
+  }
+  .labs-grid-eyebrow {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .labs-grid-label {
+    color: var(--mint);
+    position: relative;
+  }
+  .labs-grid-label::after {
+    content: "▌";
+    margin-left: 4px;
+    color: var(--mint);
+    animation: caret-blink 1.05s steps(2, end) infinite;
+  }
+  .labs-grid-counter {
+    color: var(--fg-dim);
+  }
+
+  .labs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .lab-tile {
+    display: flex;
+    flex-direction: column;
+    min-height: 268px;
+    padding: 22px 22px 20px;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    transition:
+      border-color var(--dur-base) var(--ease-standard),
+      background var(--dur-base) var(--ease-standard),
+      transform var(--dur-fast) var(--ease-standard),
+      box-shadow var(--dur-base) var(--ease-standard);
+    position: relative;
+    border-radius: 2px;
+  }
+  .lab-tile:hover {
+    border-color: var(--border-strong);
+    background: rgba(0, 0, 0, 0.45);
+  }
+  .lab-tile.is-live:hover {
+    border-color: rgba(0, 200, 150, 0.55);
+    background: rgba(0, 200, 150, 0.05);
+    transform: translateY(-4px);
+    box-shadow: 0 24px 40px -28px rgba(0, 200, 150, 0.4);
+  }
+  .lab-tile.is-soon[aria-disabled="true"] {
+    pointer-events: none;
+    opacity: 0.55;
+  }
+
+  /* Crosshair-style corners */
+  .corner {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+    transition: border-color var(--dur-base) var(--ease-standard);
+  }
+  .corner.tl { top: 4px; left: 4px;  border-top: 1px solid rgba(242, 239, 228, 0.18); border-left: 1px solid rgba(242, 239, 228, 0.18); }
+  .corner.tr { top: 4px; right: 4px; border-top: 1px solid rgba(242, 239, 228, 0.18); border-right: 1px solid rgba(242, 239, 228, 0.18); }
+  .corner.bl { bottom: 4px; left: 4px;  border-bottom: 1px solid rgba(242, 239, 228, 0.18); border-left: 1px solid rgba(242, 239, 228, 0.18); }
+  .corner.br { bottom: 4px; right: 4px; border-bottom: 1px solid rgba(242, 239, 228, 0.18); border-right: 1px solid rgba(242, 239, 228, 0.18); }
+  .lab-tile.is-live:hover .corner { border-color: rgba(0, 200, 150, 0.7); }
+
+  .lab-tile-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .lab-tile-id {
+    color: var(--fg-dim);
+  }
+  .lab-tile-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--fg-dim);
+  }
+  .lab-tile-status.live {
+    color: var(--mint);
+  }
+  .lab-tile-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--fg-dim);
+    position: relative;
+  }
+  .lab-tile-status.live .lab-tile-dot {
+    background: var(--mint);
+    box-shadow: 0 0 10px rgba(0, 200, 150, 0.65);
+  }
+  .lab-tile-status.live .lab-tile-dot::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid var(--mint);
+    opacity: 0.4;
+    animation: pulse-ring 2.4s ease-out infinite;
+  }
+
+  .lab-tile-cat {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mint);
+    margin-bottom: 10px;
+  }
+
+  .lab-tile-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin: 0 0 12px;
+    color: var(--cream);
+  }
+  .lab-tile-desc {
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--fg-muted);
+    margin: 0;
+  }
+  .lab-tile-cta {
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(242, 239, 228, 0.06);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mint);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .lab-tile-cta.soft {
+    color: var(--fg-muted);
+  }
+  .lab-tile-cta-glyph {
+    transition: transform var(--dur-base) var(--ease-standard);
+  }
+  .lab-tile.is-live:hover .lab-tile-cta-glyph {
+    transform: translateX(4px);
+  }
+
+  .labs-disclaimer {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 0;
+    margin-bottom: 36px;
+  }
+  .labs-disclaimer-inner {
+    max-width: 720px;
+  }
+  .labs-disclaimer-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mint);
+    margin-bottom: 12px;
+  }
+  .labs-disclaimer p {
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--fg-muted);
+    margin: 0;
+  }
+  .labs-disclaimer a {
+    color: var(--mint);
+    border-bottom: 1px dashed rgba(0, 200, 150, 0.4);
+  }
+  .labs-disclaimer a:hover {
+    border-bottom-color: var(--mint);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mint-dot,
+    .labs-grid-label::after,
+    .lab-tile-status.live .lab-tile-dot::after {
+      animation: none !important;
+    }
+    .lab-tile.is-live:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .labs-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .labs-hero-meta {
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+  }
+  @media (max-width: 720px) {
+    .labs-page {
+      padding: 24px 20px 36px;
+    }
+    .labs-grid {
+      grid-template-columns: 1fr;
+    }
+    .labs-hero {
+      padding: 56px 0 40px;
+    }
+  }
+</style>

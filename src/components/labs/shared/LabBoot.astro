@@ -1,0 +1,284 @@
+---
+interface Props {
+  /** L_01, L_02, ... — module identifier shown big */
+  id: string;
+  /** Tool name shown next to the id */
+  title: string;
+  /** "cold" = first-ever load (longer, on index). "module" = tool boot. */
+  mode?: "cold" | "module";
+  /** session-storage key. If set, only fire boot when missing. */
+  once?: string;
+}
+
+const { id, title, mode = "module", once } = Astro.props;
+
+const lines =
+  mode === "cold"
+    ? [
+        { tag: "BOOT", text: "scanning lab modules" },
+        { tag: "BOOT", text: "registering routes" },
+        { tag: "BOOT", text: "warming atmosphere" },
+        { tag: "OK", text: "braum labs online", ok: true },
+      ]
+    : [
+        { tag: "BOOT", text: "mounting react island" },
+        { tag: "BOOT", text: "loading system definitions" },
+        { tag: "BOOT", text: "warming scoring matrix" },
+        { tag: "OK", text: "lab module online", ok: true },
+      ];
+
+const eyebrowText = mode === "cold" ? "// initializing public labs" : "// loading lab module";
+---
+
+<div
+  class:list={["lab-boot", `mode-${mode}`]}
+  data-once={once}
+  data-mode={mode}
+  role="status"
+  aria-live="polite"
+  aria-label="Lab module boot screen"
+>
+  <div class="lab-boot-frame">
+    <div class="lab-boot-corner tl" aria-hidden="true"></div>
+    <div class="lab-boot-corner tr" aria-hidden="true"></div>
+    <div class="lab-boot-corner bl" aria-hidden="true"></div>
+    <div class="lab-boot-corner br" aria-hidden="true"></div>
+
+    <div class="lab-boot-eyebrow">{eyebrowText}</div>
+    <div class="lab-boot-id">
+      {id} <span class="lab-boot-sep">·</span> {title.toUpperCase()}
+    </div>
+
+    <ul class="lab-boot-lines">
+      {
+        lines.map((l, i) => (
+          <li class="lab-boot-line" style={`--i:${i}`}>
+            <span class:list={["lab-boot-tag", l.ok && "ok"]}>[{l.tag}]</span>
+            <span class="lab-boot-text">{l.text}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="lab-boot-bar" aria-hidden="true">
+      <div class="lab-boot-bar-fill"></div>
+    </div>
+
+    <div class="lab-boot-foot">
+      <span class="lab-boot-foot-key">runtime</span>
+      <span class="lab-boot-foot-val">node 22 · astro 5</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* Optional enhance: skip the boot if the `once` key was already set.
+     CSS handles auto-hide unconditionally — this only short-circuits early. */
+  const overlays = document.querySelectorAll<HTMLElement>(".lab-boot");
+  overlays.forEach((el) => {
+    const onceKey = el.dataset.once;
+    if (onceKey && sessionStorage.getItem(onceKey) === "1") {
+      el.style.animation = "none";
+      el.style.opacity = "0";
+      el.style.visibility = "hidden";
+      el.style.pointerEvents = "none";
+      return;
+    }
+    if (onceKey) {
+      try {
+        sessionStorage.setItem(onceKey, "1");
+      } catch {
+        // private mode etc — best effort
+      }
+    }
+    // Remove from DOM after animation ends so nothing lingers
+    setTimeout(() => el.remove(), 2400);
+  });
+</script>
+
+<style>
+  /* ── Module mode: shorter boot for tool pages (1700ms) ──────── */
+  .lab-boot.mode-module {
+    --boot-duration: 1700ms;
+  }
+  /* ── Cold mode: longer welcome boot for the lab landing (2400ms) */
+  .lab-boot.mode-cold {
+    --boot-duration: 2400ms;
+  }
+
+  .lab-boot {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    pointer-events: none; /* never block clicks, even if stuck */
+    background:
+      radial-gradient(ellipse at center, rgba(5, 30, 22, 0.9), rgba(2, 14, 10, 0.98) 70%),
+      rgba(2, 14, 10, 0.98);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    /* CSS-ONLY failsafe auto-hide. Runs once, no JS required. */
+    animation: lab-boot-life var(--boot-duration, 1700ms) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    will-change: opacity, transform, filter;
+  }
+
+  @keyframes lab-boot-life {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+      filter: blur(0);
+      visibility: visible;
+    }
+    72% {
+      opacity: 1;
+      transform: scale(1);
+      filter: blur(0);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.04);
+      filter: blur(8px);
+      visibility: hidden;
+    }
+  }
+
+  .lab-boot-frame {
+    position: relative;
+    width: min(560px, calc(100vw - 48px));
+    padding: 40px 44px 36px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(0, 200, 150, 0.25);
+    border-radius: 4px;
+    box-shadow:
+      0 0 0 1px rgba(0, 200, 150, 0.1),
+      0 30px 80px -20px rgba(0, 0, 0, 0.7),
+      0 0 64px -10px rgba(0, 200, 150, 0.18);
+  }
+
+  .lab-boot-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+  }
+  .lab-boot-corner.tl { top: 6px; left: 6px;  border-top: 1px solid var(--mint); border-left: 1px solid var(--mint); }
+  .lab-boot-corner.tr { top: 6px; right: 6px; border-top: 1px solid var(--mint); border-right: 1px solid var(--mint); }
+  .lab-boot-corner.bl { bottom: 6px; left: 6px;  border-bottom: 1px solid var(--mint); border-left: 1px solid var(--mint); }
+  .lab-boot-corner.br { bottom: 6px; right: 6px; border-bottom: 1px solid var(--mint); border-right: 1px solid var(--mint); }
+
+  .lab-boot-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mint);
+    margin-bottom: 12px;
+  }
+  .lab-boot-id {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.005em;
+    color: var(--cream);
+    margin-bottom: 28px;
+  }
+  .lab-boot-sep {
+    color: var(--mint);
+    margin: 0 4px;
+  }
+
+  .lab-boot-lines {
+    list-style: none;
+    margin: 0 0 28px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--fg-dim);
+  }
+  .lab-boot-line {
+    opacity: 0;
+    transform: translateX(-6px);
+    /* Each line uses --i (index) and --boot-duration for stagger.
+       Cold mode (2400ms): lines start at 18% and complete by 70%
+       Module mode (1700ms): same percentage map */
+    animation:
+      lab-boot-line-in 360ms cubic-bezier(0.16, 1, 0.3, 1) forwards
+      calc(var(--boot-duration, 1700ms) * 0.08 + var(--i, 0) * 160ms);
+  }
+  @keyframes lab-boot-line-in {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  .lab-boot-tag {
+    color: var(--mint);
+    margin-right: 8px;
+    font-weight: 500;
+  }
+  .lab-boot-tag.ok {
+    color: var(--cream);
+    background: rgba(0, 200, 150, 0.16);
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+
+  .lab-boot-bar {
+    height: 3px;
+    background: rgba(242, 239, 228, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .lab-boot-bar-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--forest-glow), var(--mint));
+    box-shadow: 0 0 12px rgba(0, 200, 150, 0.5);
+    animation: lab-boot-bar calc(var(--boot-duration, 1700ms) * 0.7) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes lab-boot-bar {
+    to {
+      width: 100%;
+    }
+  }
+
+  .lab-boot-foot {
+    display: flex;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+  }
+  .lab-boot-foot-key {
+    color: var(--fg-dim);
+  }
+  .lab-boot-foot-val {
+    color: var(--mint);
+    text-transform: lowercase;
+    letter-spacing: 0.06em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lab-boot {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+    }
+    .lab-boot-line,
+    .lab-boot-bar-fill {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .lab-boot-bar-fill {
+      width: 100% !important;
+    }
+  }
+</style>

@@ -1,0 +1,622 @@
+---
+import LabFooter from "~/components/labs/shared/LabFooter.astro";
+import LabHeader from "~/components/labs/shared/LabHeader.astro";
+
+export interface MetaItem {
+  label: string;
+  value: string;
+}
+
+interface Props {
+  slug: string;
+  index: string;
+  title: string;
+  category: string;
+  status: "live" | "wip" | "soon";
+  subtitle: string;
+  meta: MetaItem[];
+  cta: {
+    label: string;
+    href: string;
+    external?: boolean;
+  };
+}
+
+const { slug, index: labIndex, title, category, status, subtitle, meta, cta } = Astro.props;
+
+const statusLabel = status === "live" ? "LIVE" : status === "wip" ? "WIP" : "COMING SOON";
+const eyebrowLabel = `BRAUM · LABS · ${labIndex} · ${title.toUpperCase()}`;
+---
+
+<div class="labs-page">
+  <LabHeader eyebrow={eyebrowLabel} />
+
+  <section class="detail-hero" data-anim-group="hero">
+    <a href="/" class="detail-back" data-anim="back-link">
+      <span aria-hidden="true">←</span> ZURÜCK ZUM INDEX
+    </a>
+
+    <div class="detail-hero-row">
+      <div class="detail-hero-left">
+        <div class="detail-hero-cat" data-anim="cat" transition:name={`tile-cat-${slug}`}>
+          {category}
+        </div>
+        <a
+          class="detail-hero-title-link"
+          href={cta.href}
+          target={cta.external ? "_blank" : undefined}
+          rel={cta.external ? "noreferrer noopener" : undefined}
+          aria-label={`${cta.label} — ${title}`}
+          data-track="lab.detail.title-cta"
+          data-track-prop-slug={slug}
+          data-track-prop-target={cta.external ? "external" : "internal"}
+        >
+          <h1 class="detail-hero-title" data-anim="title" transition:name={`tile-title-${slug}`}>
+            {title}<span class="mint-dot"></span>
+          </h1>
+          <span class="detail-hero-title-glyph" aria-hidden="true">{cta.external ? "↗" : "→"}</span>
+        </a>
+        <p class="detail-hero-sub" data-anim="sub">{subtitle}</p>
+      </div>
+      <div class="detail-hero-right">
+        <div class:list={["detail-status", status]} data-anim="status">
+          <span class="detail-status-dot" aria-hidden="true"></span>
+          <span class="detail-status-label">{statusLabel}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="detail-meta" data-anim-group="meta">
+    {
+      meta.map((m) => (
+        <div class="detail-meta-cell" data-anim="meta-cell">
+          <div class="detail-meta-label">{m.label}</div>
+          <div class="detail-meta-val">{m.value}</div>
+        </div>
+      ))
+    }
+  </section>
+
+  <section class="detail-section" data-anim-group="why">
+    <div class="detail-section-marker" data-anim="marker">// why</div>
+    <div class="detail-section-body">
+      <slot name="why" />
+    </div>
+  </section>
+
+  <section class="detail-section" data-anim-group="how">
+    <div class="detail-section-marker" data-anim="marker">// how</div>
+    <div class="detail-section-body">
+      <slot name="how" />
+    </div>
+  </section>
+
+  <section class="detail-section" data-anim-group="stack">
+    <div class="detail-section-marker" data-anim="marker">// stack</div>
+    <div class="detail-section-body">
+      <slot name="stack" />
+    </div>
+  </section>
+
+  <section class="detail-cta-wrap" data-anim-group="cta">
+    <a
+      class:list={["detail-cta", `is-${status}`]}
+      href={cta.href}
+      target={cta.external ? "_blank" : undefined}
+      rel={cta.external ? "noreferrer noopener" : undefined}
+      aria-disabled={status === "soon" ? "true" : undefined}
+      data-cta
+      data-track="lab.detail.cta"
+      data-track-prop-slug={slug}
+      data-track-prop-target={cta.external ? "external" : "internal"}
+    >
+      <span class="detail-cta-num">RUN_{labIndex}</span>
+      <span class="detail-cta-label">{cta.label}</span>
+      <span class="detail-cta-glyph" aria-hidden="true">{cta.external ? "↗" : "→"}</span>
+    </a>
+    <div class="detail-cta-hint">{cta.external ? "extern · neuer tab" : "view-transition · keine reload"}</div>
+  </section>
+
+  <section class="labs-disclaimer">
+    <div class="labs-disclaimer-inner">
+      <div class="labs-disclaimer-eyebrow">// hinweis</div>
+      <p>
+        Tools hier sind Experimente, kein Beratungsersatz. Geht es um konkrete Make-or-Buy-Fragen, Stack-Audits oder
+        Migrationen, ist das ein Job für <a href="https://braum.consulting">braum.consulting</a> - nicht für ein
+        Schnell-Tool im Lab.
+      </p>
+    </div>
+  </section>
+
+  <LabFooter />
+</div>
+
+<style>
+  .labs-page {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 32px 56px 48px;
+    position: relative;
+  }
+
+  .detail-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    margin: 64px 0 32px;
+    transition: color var(--dur-base) var(--ease-standard);
+  }
+  .detail-back:hover {
+    color: var(--mint);
+  }
+
+  .detail-hero-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: start;
+  }
+  .detail-hero-cat {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mint);
+    margin-bottom: 18px;
+  }
+  .detail-hero-title-link {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 24px;
+    color: inherit;
+    text-decoration: none;
+    position: relative;
+    padding-right: 24px;
+    transition: color var(--dur-base) var(--ease-standard);
+  }
+  .detail-hero-title-link:hover {
+    color: var(--mint);
+  }
+  .detail-hero-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 0.96;
+    letter-spacing: -0.035em;
+    color: var(--cream);
+    margin: 0 0 24px;
+    text-wrap: balance;
+    transition: color var(--dur-base) var(--ease-standard);
+  }
+  .detail-hero-title-link:hover .detail-hero-title {
+    color: var(--mint);
+  }
+  .detail-hero-title-glyph {
+    font-family: var(--font-mono);
+    font-size: clamp(22px, 2.4vw, 36px);
+    color: var(--mint);
+    line-height: 1;
+    padding-top: 0.18em;
+    opacity: 0.6;
+    transition:
+      transform var(--dur-base) var(--ease-standard),
+      opacity var(--dur-base) var(--ease-standard);
+    will-change: transform;
+  }
+  .detail-hero-title-link:hover .detail-hero-title-glyph {
+    opacity: 1;
+    transform: translate(6px, -3px);
+  }
+  .detail-hero-sub {
+    font-family: var(--font-body);
+    font-size: clamp(15px, 1.4vw, 19px);
+    line-height: 1.5;
+    color: var(--fg-muted);
+    max-width: 60ch;
+    margin: 0;
+  }
+
+  .detail-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.35);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    white-space: nowrap;
+  }
+  .detail-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--fg-dim);
+    position: relative;
+  }
+  .detail-status.live {
+    color: var(--mint);
+    border-color: rgba(0, 200, 150, 0.45);
+  }
+  .detail-status.live .detail-status-dot {
+    background: var(--mint);
+    box-shadow: 0 0 10px rgba(0, 200, 150, 0.6);
+  }
+  .detail-status.live .detail-status-dot::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid var(--mint);
+    opacity: 0.5;
+    animation: pulse-ring 2.4s ease-out infinite;
+  }
+  .detail-status.wip {
+    color: var(--cream);
+    border-color: var(--border-strong);
+  }
+  .detail-status.wip .detail-status-dot {
+    background: var(--cream);
+  }
+
+  .detail-meta {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    margin: 56px 0 64px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .detail-meta-cell {
+    padding: 18px 20px;
+    background: rgba(0, 0, 0, 0.25);
+    border-right: 1px solid var(--border);
+  }
+  .detail-meta-cell:last-child {
+    border-right: 0;
+  }
+  .detail-meta-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    margin-bottom: 6px;
+  }
+  .detail-meta-val {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--cream);
+    letter-spacing: 0.02em;
+  }
+
+  .detail-section {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 32px;
+    padding: 48px 0;
+    border-top: 1px solid var(--border);
+    align-items: start;
+  }
+  .detail-section-marker {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mint);
+    padding-top: 6px;
+    position: relative;
+  }
+  .detail-section-marker::after {
+    content: "▌";
+    margin-left: 4px;
+    color: var(--mint);
+    animation: caret-blink 1.05s steps(2, end) infinite;
+  }
+  /* Slot-content rules live in <style is:global> block below */
+
+  /* CTA */
+  .detail-cta-wrap {
+    margin: 64px 0 48px;
+    text-align: center;
+  }
+  .detail-cta {
+    display: inline-grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 24px;
+    align-items: center;
+    width: 100%;
+    max-width: 760px;
+    padding: 24px 32px;
+    background: rgba(0, 200, 150, 0.05);
+    border: 1px solid rgba(0, 200, 150, 0.4);
+    border-radius: var(--radius-md);
+    color: var(--cream);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: -0.015em;
+    transition:
+      transform var(--dur-base) var(--ease-standard),
+      border-color var(--dur-base) var(--ease-standard),
+      background-color var(--dur-base) var(--ease-standard),
+      box-shadow var(--dur-base) var(--ease-standard);
+    position: relative;
+    overflow: hidden;
+    animation: cta-glow 3.6s ease-in-out infinite;
+  }
+  .detail-cta:hover {
+    transform: translateY(-2px) scale(1.01);
+    border-color: var(--mint);
+    background: rgba(0, 200, 150, 0.1);
+    box-shadow:
+      0 0 0 1px rgba(0, 200, 150, 0.45),
+      0 24px 60px -20px rgba(0, 200, 150, 0.4);
+  }
+  .detail-cta.is-soon {
+    pointer-events: none;
+    opacity: 0.55;
+    animation: none;
+  }
+  .detail-cta::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent, rgba(0, 200, 150, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 700ms ease;
+    pointer-events: none;
+  }
+  .detail-cta:hover::before {
+    transform: translateX(100%);
+  }
+  .detail-cta-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mint);
+    font-weight: 500;
+  }
+  .detail-cta-label {
+    text-align: left;
+  }
+  .detail-cta-glyph {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    color: var(--mint);
+    transition: transform var(--dur-base) var(--ease-standard);
+  }
+  .detail-cta:hover .detail-cta-glyph {
+    transform: translateX(6px);
+  }
+  .detail-cta-hint {
+    margin-top: 12px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+  }
+
+  /* Disclaimer (re-used from index page) */
+  .labs-disclaimer {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 0;
+    margin-bottom: 36px;
+  }
+  .labs-disclaimer-inner {
+    max-width: 720px;
+  }
+  .labs-disclaimer-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mint);
+    margin-bottom: 12px;
+  }
+  .labs-disclaimer p {
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--fg-muted);
+    margin: 0;
+  }
+  .labs-disclaimer a {
+    color: var(--mint);
+    border-bottom: 1px dashed rgba(0, 200, 150, 0.4);
+  }
+
+  @keyframes cta-glow {
+    0%, 100% {
+      box-shadow:
+        0 0 0 1px rgba(0, 200, 150, 0.18),
+        0 0 32px -8px rgba(0, 200, 150, 0.15);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px rgba(0, 200, 150, 0.32),
+        0 0 48px -8px rgba(0, 200, 150, 0.32);
+    }
+  }
+  @keyframes caret-blink {
+    0%, 50%   { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .detail-cta,
+    .detail-section-marker::after,
+    .detail-status.live .detail-status-dot::after {
+      animation: none !important;
+    }
+    .detail-cta:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .labs-page {
+      padding: 24px 28px 36px;
+    }
+    .detail-section {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .detail-meta {
+      grid-template-columns: 1fr 1fr;
+    }
+    .detail-meta-cell {
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-meta-cell:nth-child(2n) {
+      border-right: 0;
+    }
+    .detail-meta-cell:nth-last-child(-n+2) {
+      border-bottom: 0;
+    }
+    .detail-cta {
+      font-size: 18px;
+      padding: 18px 20px;
+      grid-template-columns: 1fr auto;
+    }
+    .detail-cta-num {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+    .detail-cta-label {
+      grid-row: 2;
+    }
+    .detail-cta-glyph {
+      grid-row: 2;
+    }
+  }
+  @media (max-width: 720px) {
+    .detail-hero-row {
+      grid-template-columns: 1fr;
+    }
+    .detail-meta {
+      grid-template-columns: 1fr;
+    }
+    .detail-meta-cell {
+      border-right: 0;
+    }
+  }
+</style>
+
+<style is:global>
+  /* Slot content (rendered outside the component's scoped CSS) */
+  .detail-section-body > p {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--fg-muted);
+    margin: 0 0 18px;
+    max-width: 68ch;
+    text-wrap: pretty;
+  }
+  .detail-section-body > p:last-child {
+    margin-bottom: 0;
+  }
+  .detail-section-body p strong {
+    color: var(--cream);
+    font-weight: 600;
+  }
+  .detail-section-body ol {
+    counter-reset: step;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 68ch;
+  }
+  .detail-section-body ol li {
+    counter-increment: step;
+    position: relative;
+    padding-left: 52px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--fg-muted);
+    text-wrap: pretty;
+  }
+  .detail-section-body ol li::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--mint);
+    line-height: 1;
+  }
+  .detail-section-body ol li strong {
+    color: var(--cream);
+    font-weight: 600;
+    display: inline;
+  }
+  .detail-section-body ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 68ch;
+  }
+  .detail-section-body ul li {
+    position: relative;
+    padding-left: 22px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--fg-muted);
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+  .detail-section-body ul li::before {
+    content: "·";
+    position: absolute;
+    left: 4px;
+    top: -2px;
+    color: var(--mint);
+    font-size: 22px;
+    line-height: 1;
+  }
+  .detail-section-body ul li strong {
+    color: var(--cream);
+    font-weight: 600;
+  }
+  .detail-section-body a {
+    color: var(--mint);
+    border-bottom: 1px dashed rgba(0, 200, 150, 0.4);
+  }
+  .detail-section-body a:hover {
+    border-bottom-color: var(--mint);
+  }
+  .detail-section-body code {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--mint);
+    background: rgba(0, 200, 150, 0.06);
+    padding: 1px 6px;
+    border: 1px solid rgba(0, 200, 150, 0.18);
+    border-radius: 3px;
+  }
+</style>

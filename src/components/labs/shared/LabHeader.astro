@@ -1,0 +1,162 @@
+---
+import Eyebrow from "~/components/ui/Eyebrow.astro";
+
+interface Props {
+  eyebrow?: string;
+  tagLine?: string;
+  liveCount?: number;
+  totalCount?: number;
+}
+
+const {
+  eyebrow = "BRAUM · LABS",
+  tagLine = "v0.1.0 · NODE_22 · ASTRO_5",
+  liveCount,
+  totalCount,
+} = Astro.props;
+
+const showStatus = liveCount !== undefined && totalCount !== undefined;
+---
+
+<header class="lab-header" transition:persist="lab-header" transition:name="lab-header">
+  <div class="lab-header-left">
+    <a class="mono-tile" href="/" aria-label="Public Labs index" data-anim="logo" transition:name="lab-mono">
+      <span class="mono-tile-letters">SB<span class="mint-dot-inline">.</span></span>
+    </a>
+    <div class="lab-header-meta">
+      <Eyebrow label={eyebrow} />
+      <div class="lab-header-tag">{tagLine}</div>
+    </div>
+  </div>
+
+  {
+    showStatus && (
+      <div class="lab-header-right">
+        <div class="status-strip">
+          <span class="status-strip-dot" aria-hidden="true" />
+          <span class="status-strip-text">
+            <span class="tabular">{liveCount}</span>
+            <span class="status-sep">/</span>
+            <span class="tabular">{totalCount}</span>
+            <span class="status-label">live</span>
+          </span>
+        </div>
+      </div>
+    )
+  }
+</header>
+
+<style>
+  .lab-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .lab-header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .lab-header-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .lab-header-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+  }
+
+  .mono-tile {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(140deg, var(--forest-mid), var(--forest-deep));
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--cream);
+    transition: border-color var(--dur-base) var(--ease-standard);
+    position: relative;
+    flex: none;
+  }
+  .mono-tile:hover {
+    border-color: rgba(0, 200, 150, 0.55);
+  }
+  .mono-tile-letters {
+    font-size: 18px;
+    letter-spacing: -0.02em;
+  }
+  .mint-dot-inline {
+    color: var(--mint);
+    animation: dot-breath 3.4s ease-in-out infinite;
+    display: inline-block;
+  }
+
+  .status-strip {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.35);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+  .status-strip-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mint);
+    box-shadow: 0 0 10px rgba(0, 200, 150, 0.6);
+    position: relative;
+  }
+  .status-strip-dot::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid var(--mint);
+    opacity: 0.5;
+    animation: pulse-ring 2.4s ease-out infinite;
+  }
+  .status-strip-text .tabular {
+    color: var(--cream);
+  }
+  .status-sep {
+    color: var(--fg-dim);
+    margin: 0 4px;
+  }
+  .status-label {
+    color: var(--mint);
+    margin-left: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .status-strip-dot::after,
+    .mint-dot-inline {
+      animation: none !important;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .lab-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+  }
+</style>

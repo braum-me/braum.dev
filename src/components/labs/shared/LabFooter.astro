@@ -1,0 +1,102 @@
+---
+const buildId = process.env.GIT_SHA?.slice(0, 7) ?? "dev";
+const buildDate = new Date().toISOString().slice(0, 10);
+---
+
+<footer class="lab-footer" data-anim="footer">
+  <span class="lab-footer-block">
+    <span class="lab-footer-key">node</span>
+    <span class="lab-footer-val">braum.dev</span>
+  </span>
+  <span class="lab-footer-block">
+    <span class="lab-footer-key">build</span>
+    <span class="lab-footer-val">{buildId} · {buildDate}</span>
+  </span>
+  <span class="lab-footer-block">
+    <span class="lab-footer-key">region</span>
+    <span class="lab-footer-val">de · sinntal</span>
+  </span>
+  <span class="lab-footer-block live-clock-wrap">
+    <span class="lab-footer-key">clock</span>
+    <span class="lab-footer-val tabular" id="live-clock">--:--:--</span>
+  </span>
+  <span class="lab-footer-block right">
+    <span class="lab-footer-key">SB</span>
+    <span class="mint-dot-inline">.</span>
+  </span>
+</footer>
+
+<script>
+  /* Live clock — Europe/Berlin (Sinntal). Updates every second.
+     Suspended via prefers-reduced-motion handled by tab-throttling alone
+     (no CSS animation here). */
+  const el = document.getElementById("live-clock");
+  if (el) {
+    const fmt = new Intl.DateTimeFormat("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      timeZone: "Europe/Berlin",
+      hour12: false,
+    });
+    const tick = () => {
+      el.textContent = fmt.format(new Date());
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+</script>
+
+<style>
+  .lab-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 32px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    padding-top: 8px;
+  }
+  .lab-footer-block {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .lab-footer-block.right {
+    margin-left: auto;
+  }
+  .lab-footer-key {
+    color: var(--fg-dim);
+  }
+  .lab-footer-val {
+    color: var(--cream);
+    text-transform: lowercase;
+    letter-spacing: 0.06em;
+  }
+  .live-clock-wrap .lab-footer-val {
+    color: var(--mint);
+    text-transform: none;
+  }
+  .mint-dot-inline {
+    color: var(--mint);
+    animation: dot-breath 3.4s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mint-dot-inline {
+      animation: none !important;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .lab-footer {
+      gap: 16px;
+    }
+    .lab-footer-block.right {
+      margin-left: 0;
+    }
+  }
+</style>

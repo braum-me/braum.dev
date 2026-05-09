@@ -1,0 +1,74 @@
+---
+import LabDetail, { type MetaItem } from "~/components/labs/shared/LabDetail.astro";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+const meta: MetaItem[] = [
+  { label: "VERSION", value: "v0.1" },
+  { label: "UPDATED", value: "2026-05-09" },
+  { label: "FORMAT", value: "Notebook · Markdown" },
+  { label: "HOSTING", value: "extern · agi.jetzt" },
+];
+---
+
+<BaseLayout
+  title="L_02 · agi.jetzt · Public Labs"
+  description="Was tun wir, wenn AGI morgen ankommt - Notizbuch, das offen mitgedacht wird. Public, lebend, wird laufend ergänzt."
+>
+  <LabDetail
+    slug="agi-jetzt"
+    index="L_02"
+    title="agi.jetzt"
+    category="EXPERIMENT"
+    status="live"
+    subtitle="Was tun wir, wenn AGI morgen ankommt. Ein offen geführtes Notizbuch zu Kapazitäten, Kontroll-Layern und der Frage, was passiert wenn das Ding tatsächlich landet."
+    meta={meta}
+    cta={{ label: "LAB MODULE ÖFFNEN", href: "https://agi.jetzt", external: true }}
+  >
+    <Fragment slot="why">
+      <p>
+        AGI-Diskussionen pendeln zwischen Hype-Zyklus und Doom-Pamphlet. Praktiker brauchen weder das eine noch das
+        andere. Sie brauchen eine Notiz-Sammlung, die ehrlich mitschreibt was wir verstehen, was wir nicht verstehen,
+        und wo die Hebel liegen falls die Modelle morgen einen Sprung machen.
+      </p>
+      <p>
+        Das Lab hier ist kein Manifesto und keine Prognose. Es ist ein laufendes Notizbuch über Capabilities, die
+        beobachtbar besser werden, über Alignment-Annahmen die sich verschieben, und über Org-Konsequenzen für
+        Mittelstand und IT-Abteilungen, sobald ein bestimmter Use-Case kippt.
+      </p>
+      <p>
+        <strong>Zielgruppe:</strong> Operatoren die AI strategisch einsetzen, nicht bauen. CTOs, Bereichsleiter, IT-Verantwortliche.
+        Niedrige Schwelle, hohe Konkretheit. Keine Forschungsdiskussion.
+      </p>
+    </Fragment>
+
+    <Fragment slot="how">
+      <ol>
+        <li>
+          <strong>Externer Hub.</strong> Inhalt liegt unter <code>agi.jetzt</code>, eigenständig, eigenes Repo.
+        </li>
+        <li>
+          <strong>Notebook-Format.</strong> Markdown-Einträge, datiert, klein, lesbar. Keine Long-Form-Essays.
+        </li>
+        <li>
+          <strong>Lebendes Dokument.</strong> Wird laufend ergänzt wenn neue Modell-Releases oder Alignment-Papers
+          relevante Implikationen haben.
+        </li>
+        <li>
+          <strong>Public-by-default.</strong> Alle Notizen offen lesbar, Source auf GitHub. Kein Newsletter,
+          keine Anmeldung.
+        </li>
+      </ol>
+    </Fragment>
+
+    <Fragment slot="stack">
+      <ul>
+        <li><strong>Astro 5</strong> static, deployed auf eigener Infra</li>
+        <li><strong>Markdown-Content</strong>, mit dem Brand-Layer von braum.x verheiratet</li>
+        <li><strong>Kein Tracking</strong>, kein Lead-Capture, keine Anmelde-Schranke</li>
+      </ul>
+      <p style="margin-top:24px">
+        Source-Code: <a href="https://github.com/braum-me/agi-jetzt" target="_blank" rel="noreferrer noopener">github.com/braum-me/agi-jetzt ↗</a>
+      </p>
+    </Fragment>
+  </LabDetail>
+</BaseLayout>

@@ -1,0 +1,21 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/*"]
+    },
+    "jsx": "preserve",
+    "allowJs": true,
+    "types": ["astro/client", "node"]
+  },
+  "include": ["src/**/*", "astro.config.mjs", "*.d.ts"],
+  "exclude": ["dist", "node_modules"]
+}
