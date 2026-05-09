@@ -1,0 +1,82 @@
+---
+import LabDetail, { type MetaItem } from "~/components/labs/shared/LabDetail.astro";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+const meta: MetaItem[] = [
+  { label: "VERSION", value: "v0.1" },
+  { label: "UPDATED", value: "2026-05-09" },
+  { label: "DURATION", value: "~90 Sek" },
+  { label: "INPUT", value: "Größe · Branche · Strategie" },
+];
+---
+
+<BaseLayout
+  title="L_01 · AI-Stack-Fit · Public Labs"
+  description="Welcher AI-Stack passt zu Ihrem Unternehmen. Wizard mit Synergie-Check und Friction-Detection - in 90 Sekunden zur Stack-Empfehlung."
+>
+  <LabDetail
+    slug="ai-stack-fit"
+    index="L_01"
+    title="AI-Stack-Fit"
+    category="AI · CONSULTING"
+    status="live"
+    subtitle="Welcher AI-Stack passt zu Ihrem Unternehmen, wenn Sie AI ernst meinen. Größe, Branche, Strategie rein - Empfehlung mit Synergie-Score und Stack-Brüchen raus."
+    meta={meta}
+    cta={{ label: "LAB MODULE STARTEN", href: "https://braum.org", external: true }}
+  >
+    <Fragment slot="why">
+      <p>
+        Ein AI-Stack ist nur so stark wie sein Office-Backbone. Wer im Microsoft-Universum sitzt und ChatGPT ausrollt,
+        baut zwei Welten parallel. Wer Copilot wählt, bekommt seine SharePoint-Inhalte indexiert. Diese Entscheidung
+        wird oft nach Pilot-Showcase und Vendor-Pitch getroffen, nicht nach struktureller Stack-Logik.
+      </p>
+      <p>
+        Das Tool ersetzt keinen Architektur-Workshop. Es ersetzt aber die zwei Stunden, die Decider sonst mit
+        Vergleichstabellen verbringen, bevor das eigentliche Gespräch beginnen kann. <strong>Output:</strong> eine
+        Empfehlung pro Kategorie, ein Synergie-Score 0-100, eine Liste konkreter Stack-Brüche mit Begründung.
+      </p>
+      <p>
+        Zielgruppe: KMU-Decider und IT-Verantwortliche im Mittelstand, die zwischen "wir nehmen einfach Microsoft"
+        und "wir machen Best-of-Breed" abwägen. Keine Pflichtlektüre für AI-Engineers, keine Tiefe für Hyperscaler.
+      </p>
+    </Fragment>
+
+    <Fragment slot="how">
+      <ol>
+        <li>
+          <strong>Modus wählen.</strong> Greenfield (5 Fragen, frisch starten) oder Bestands-Audit (7 Fragen, mit
+          existierendem Stack).
+        </li>
+        <li>
+          <strong>Profil zusammenklicken.</strong> Größe, Branche, Umsatz, optional bestehende Ökosysteme, Strategie
+          (Microsoft, Google, Best-of-Breed, Kosten, EU-Souverän).
+        </li>
+        <li>
+          <strong>Scoring läuft.</strong> Jedes der ~45 katalogisierten Systeme wird gegen das Profil bewertet:
+          Strategie-Fit, Größenfit, Ökosystem-Synergie, Branche, EU-Compliance, Kosten.
+        </li>
+        <li>
+          <strong>Empfehlung lesen.</strong> 12 Kategorien (Office, AI, Comm, CRM, ERP, Data, ...), pro Kategorie eine
+          Primär-Empfehlung plus 3 Alternativen mit Score.
+        </li>
+        <li>
+          <strong>Brüche prüfen.</strong> Wenn der Stack Friction hat - z.B. Salesforce + HubSpot Marketing
+          gleichzeitig - kommt eine Warnung mit konkreter Begründung.
+        </li>
+      </ol>
+    </Fragment>
+
+    <Fragment slot="stack">
+      <ul>
+        <li><strong>Astro 5</strong> SSR mit <code>@astrojs/node</code></li>
+        <li><strong>React 18</strong> als Island, <code>client:visible</code> - hydratisiert nur wenn der User wirklich scrollt</li>
+        <li><strong>TypeScript strict</strong>, alle Daten + Scoring typed (<code>data.ts</code>)</li>
+        <li><strong>Statisches Mapping</strong> - keine API-Calls, keine LLM-Inference, keine Telemetrie</li>
+        <li><strong>Bundle</strong>: ~10 KB gzipped Tool-Code, ~44 KB gzipped React-Runtime</li>
+      </ul>
+      <p style="margin-top:24px">
+        Source-Code: <a href="https://github.com/braum-me/braum.org/tree/main/src/components/labs/ai-stack-fit" target="_blank" rel="noreferrer noopener">github.com/braum-me/braum.org · /labs/ai-stack-fit ↗</a>
+      </p>
+    </Fragment>
+  </LabDetail>
+</BaseLayout>
