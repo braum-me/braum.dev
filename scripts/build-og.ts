@@ -10,7 +10,7 @@
  * Run: `pnpm og:build`
  */
 
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Resvg } from "@resvg/resvg-js";
@@ -18,17 +18,23 @@ import { CARDS, renderOgSvg } from "../src/lib/og.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_DIR = resolve(ROOT, "public/og");
+const FONT_DIR = resolve(ROOT, "assets/fonts-og");
+
+async function loadBrandFonts(): Promise<string[]> {
+  const entries = await readdir(FONT_DIR);
+  return entries.filter((f) => /\.(ttf|otf)$/i.test(f)).map((f) => resolve(FONT_DIR, f));
+}
 
 async function main(): Promise<void> {
   await mkdir(OUT_DIR, { recursive: true });
+  const fontFiles = await loadBrandFonts();
+  console.log(`→ ${fontFiles.length} brand font files loaded`);
 
   for (const [slug, card] of Object.entries(CARDS)) {
     const svg = renderOgSvg(card);
     const resvg = new Resvg(svg, {
       fitTo: { mode: "width", value: 1200 },
-      // Resvg can't load fontsource fonts; fall back to system sans/mono.
-      // Final cards use the same colour/layout, just system fonts.
-      font: { loadSystemFonts: true, defaultFontFamily: "sans-serif" },
+      font: { fontFiles, loadSystemFonts: false, defaultFontFamily: "Inter" },
     });
     const png = resvg.render().asPng();
     const outPath = resolve(OUT_DIR, `${slug}.png`);

@@ -26,6 +26,18 @@ const ESC: Record<string, string> = {
 };
 const escapeXml = (s: string): string => s.replace(/[&<>"']/g, (c) => ESC[c] ?? c);
 
+// Coarse char-class advance widths for Inter Bold, in em. Used to position the
+// trailing mint dot after the title — resvg won't give us a real bbox at
+// build time, so we approximate. Calibrated visually against the live PNGs.
+const interBoldEmAdvance = (c: string): number => {
+  if (/[ijl1!|.,:; \-']/.test(c)) return 0.27;
+  if (/[frt]/.test(c)) return 0.42;
+  if (/[mwMW]/.test(c)) return 0.78;
+  return 0.55;
+};
+const measureInterBold = (s: string, fontSize: number): number =>
+  Array.from(s).reduce((sum, c) => sum + interBoldEmAdvance(c) * fontSize, 0);
+
 export function renderOgSvg(card: OgCard): string {
   const eyebrow = escapeXml(card.eyebrow);
   const title = escapeXml(card.title);
@@ -67,7 +79,7 @@ export function renderOgSvg(card: OgCard): string {
 
   <!-- title -->
   <text x="80" y="320" fill="#F2EFE4" font-family="'Inter', system-ui, sans-serif" font-size="112" font-weight="700" letter-spacing="-3">${title}</text>
-  <circle cx="${80 + title.length * 33 + 18}" cy="320" r="8" fill="#00C896"/>
+  <circle cx="${Math.round(80 + measureInterBold(card.title, 112) - card.title.length * 3 + 18)}" cy="320" r="8" fill="#00C896"/>
 
   <!-- tagline -->
   <text x="80" y="400" fill="#F2EFE4" fill-opacity="0.75" font-family="'Geist', system-ui, sans-serif" font-size="30" font-weight="400">${tagline}</text>

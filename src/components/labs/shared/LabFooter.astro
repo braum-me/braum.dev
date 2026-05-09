@@ -27,9 +27,9 @@ const buildDate = new Date().toISOString().slice(0, 10);
 </footer>
 
 <script>
-  /* Live clock — Europe/Berlin (Sinntal). Updates every second.
-     Suspended via prefers-reduced-motion handled by tab-throttling alone
-     (no CSS animation here). */
+  /* Live clock — Europe/Berlin. Updates every second. Suspended via
+     prefers-reduced-motion handled by tab-throttling alone (no CSS
+     animation here). */
   const el = document.getElementById("live-clock");
   if (el) {
     const fmt = new Intl.DateTimeFormat("de-DE", {
