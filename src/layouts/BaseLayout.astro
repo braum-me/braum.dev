@@ -24,9 +24,11 @@ const {
 const siteUrl = env("PUBLIC_SITE_URL") ?? Astro.site?.toString() ?? "https://braum.dev";
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
 
-// OG-image: per-lab SVG endpoint when on a lab page, else the default card.
-const ogImagePath = pageType === "lab" && labSlug ? `/og/${labSlug}.svg` : "/og/default.svg";
-const ogImageUrl = new URL(ogImagePath, siteUrl).toString();
+// OG-image: pre-rendered PNG cards in /public/og/. Run `pnpm og:build` after
+// editing card definitions in src/lib/og.ts. PNG (vs SVG) for universal
+// crawler support — Twitter/X in particular doesn't render SVG og:image.
+const ogImageSlug = pageType === "lab" && labSlug ? labSlug : "default";
+const ogImageUrl = new URL(`/og/${ogImageSlug}.png`, siteUrl).toString();
 
 const umamiScript = env("UMAMI_SCRIPT_URL");
 const umamiWebsiteId = env("UMAMI_WEBSITE_ID");
@@ -85,7 +87,7 @@ const particles = Array.from({ length: PARTICLE_COUNT }, () => {
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:image:type" content="image/png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
