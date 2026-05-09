@@ -14,6 +14,8 @@ interface LabTile {
   detailHref: string;
   /** When true, the tile opens in a new tab (lab lives on its own domain) */
   external?: boolean;
+  /** Mode hint shown at the bottom of the tile. */
+  mode?: "interactive" | "notebook" | "report" | "wip";
 }
 
 const tiles: LabTile[] = [
@@ -26,6 +28,7 @@ const tiles: LabTile[] = [
     description:
       "Welcher AI-Stack passt zu Ihrem Unternehmen. Größe, Branche, Strategie - in 90 Sekunden zur Empfehlung mit Synergie-Check.",
     detailHref: "/labs/ai-stack-fit",
+    mode: "interactive",
   },
   {
     id: "agi-jetzt",
@@ -33,9 +36,9 @@ const tiles: LabTile[] = [
     status: "live",
     category: "EXPERIMENT",
     title: "agi.jetzt",
-    description:
-      "Was tun wir, wenn AGI morgen ankommt - Notizbuch, das offen mitgedacht wird.",
+    description: "Was tun wir, wenn AGI morgen ankommt - Notizbuch, das offen mitgedacht wird.",
     detailHref: "/labs/agi-jetzt",
+    mode: "notebook",
   },
   {
     id: "next",
@@ -45,8 +48,16 @@ const tiles: LabTile[] = [
     title: "Nächstes Experiment",
     description: "Slot ist offen. Vorschläge willkommen.",
     detailHref: "#",
+    mode: "wip",
   },
 ];
+
+const MODE_LABEL: Record<string, string> = {
+  interactive: "interaktiv",
+  notebook: "notizbuch",
+  report: "report",
+  wip: "in arbeit",
+};
 
 const liveCount = tiles.filter((t) => t.status === "live").length;
 const totalCount = tiles.length;
@@ -55,6 +66,7 @@ const totalCount = tiles.length;
 <BaseLayout
   title="Public Labs"
   description="Experimente, Tools, halbfertige Ideen. Selbst gehostet, selbst gebaut."
+  pageType="home"
 >
   <div class="labs-page">
     <LabHeader liveCount={liveCount} totalCount={totalCount} />
@@ -137,6 +149,18 @@ const totalCount = tiles.length;
                   {tile.title}
                 </h2>
                 <p class="lab-tile-desc">{tile.description}</p>
+
+                {tile.mode && (
+                  <div class="lab-tile-mode" aria-hidden="true">
+                    <span class="lab-tile-mode-key">mode</span>
+                    <span class:list={["lab-tile-mode-val", `mode-${tile.mode}`]}>
+                      {MODE_LABEL[tile.mode]}
+                    </span>
+                    {tile.external && isLive && (
+                      <span class="lab-tile-mode-host">· own domain</span>
+                    )}
+                  </div>
+                )}
 
                 {isLive && (
                   <div class="lab-tile-cta">
@@ -310,16 +334,23 @@ const totalCount = tiles.length;
   /* Crosshair-style corners */
   .corner {
     position: absolute;
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     pointer-events: none;
-    transition: border-color var(--dur-base) var(--ease-standard);
+    transition:
+      border-color var(--dur-base) var(--ease-standard),
+      width var(--dur-base) var(--ease-standard),
+      height var(--dur-base) var(--ease-standard);
   }
-  .corner.tl { top: 4px; left: 4px;  border-top: 1px solid rgba(242, 239, 228, 0.18); border-left: 1px solid rgba(242, 239, 228, 0.18); }
-  .corner.tr { top: 4px; right: 4px; border-top: 1px solid rgba(242, 239, 228, 0.18); border-right: 1px solid rgba(242, 239, 228, 0.18); }
-  .corner.bl { bottom: 4px; left: 4px;  border-bottom: 1px solid rgba(242, 239, 228, 0.18); border-left: 1px solid rgba(242, 239, 228, 0.18); }
-  .corner.br { bottom: 4px; right: 4px; border-bottom: 1px solid rgba(242, 239, 228, 0.18); border-right: 1px solid rgba(242, 239, 228, 0.18); }
-  .lab-tile.is-live:hover .corner { border-color: rgba(0, 200, 150, 0.7); }
+  .corner.tl { top: 6px; left: 6px;  border-top: 1px solid rgba(242, 239, 228, 0.22); border-left: 1px solid rgba(242, 239, 228, 0.22); }
+  .corner.tr { top: 6px; right: 6px; border-top: 1px solid rgba(242, 239, 228, 0.22); border-right: 1px solid rgba(242, 239, 228, 0.22); }
+  .corner.bl { bottom: 6px; left: 6px;  border-bottom: 1px solid rgba(242, 239, 228, 0.22); border-left: 1px solid rgba(242, 239, 228, 0.22); }
+  .corner.br { bottom: 6px; right: 6px; border-bottom: 1px solid rgba(242, 239, 228, 0.22); border-right: 1px solid rgba(242, 239, 228, 0.22); }
+  .lab-tile.is-live:hover .corner {
+    border-color: rgba(0, 200, 150, 0.75);
+    width: 18px;
+    height: 18px;
+  }
 
   .lab-tile-head {
     display: flex;
@@ -390,8 +421,48 @@ const totalCount = tiles.length;
     color: var(--fg-muted);
     margin: 0;
   }
+  .lab-tile-mode {
+    margin-top: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    align-self: flex-start;
+  }
+  .lab-tile-mode-key {
+    color: var(--fg-dim);
+    opacity: 0.65;
+  }
+  .lab-tile-mode-val {
+    padding: 3px 8px;
+    border: 1px solid rgba(242, 239, 228, 0.14);
+    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--cream);
+  }
+  .lab-tile-mode-val.mode-interactive {
+    color: var(--mint);
+    border-color: rgba(0, 200, 150, 0.35);
+    background: rgba(0, 200, 150, 0.06);
+  }
+  .lab-tile-mode-val.mode-notebook {
+    color: var(--cream);
+  }
+  .lab-tile-mode-val.mode-wip {
+    color: var(--fg-dim);
+    border-style: dashed;
+  }
+  .lab-tile-mode-host {
+    color: var(--fg-dim);
+    opacity: 0.7;
+  }
+
   .lab-tile-cta {
-    margin-top: 20px;
+    margin-top: 14px;
     padding-top: 14px;
     border-top: 1px solid rgba(242, 239, 228, 0.06);
     font-family: var(--font-mono);
@@ -474,6 +545,35 @@ const totalCount = tiles.length;
     }
     .labs-hero {
       padding: 56px 0 40px;
+    }
+    .lab-tile {
+      min-height: 220px;
+      padding: 20px 18px 18px;
+    }
+    .lab-tile-title {
+      font-size: 24px;
+    }
+  }
+  @media (max-width: 480px) {
+    .labs-page {
+      padding: 20px 16px 32px;
+    }
+    .labs-hero {
+      padding: 40px 0 32px;
+    }
+    .labs-hero-meta {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .labs-grid-eyebrow {
+      font-size: 10px;
+    }
+    .lab-tile-title {
+      font-size: 22px;
+    }
+    .lab-tile-mode {
+      font-size: 9.5px;
+      gap: 6px;
     }
   }
 </style>

@@ -7,16 +7,26 @@ interface Props {
   title?: string;
   description?: string;
   noindex?: boolean;
+  /** "home" | "lab" | "404" — drives page-view tracking + OG-image selection */
+  pageType?: "home" | "lab" | "404";
+  /** Lab slug, only relevant when pageType === "lab" */
+  labSlug?: string;
 }
 
 const {
   title = "Public Labs",
   description = "Experimente, Tools, halbfertige Ideen.",
   noindex = false,
+  pageType = "home",
+  labSlug,
 } = Astro.props;
 
 const siteUrl = env("PUBLIC_SITE_URL") ?? Astro.site?.toString() ?? "https://braum.dev";
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
+
+// OG-image: per-lab SVG endpoint when on a lab page, else the default card.
+const ogImagePath = pageType === "lab" && labSlug ? `/og/${labSlug}.svg` : "/og/default.svg";
+const ogImageUrl = new URL(ogImagePath, siteUrl).toString();
 
 const umamiScript = env("UMAMI_SCRIPT_URL");
 const umamiWebsiteId = env("UMAMI_WEBSITE_ID");
@@ -72,10 +82,15 @@ const particles = Array.from({ length: PARTICLE_COUNT }, () => {
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:site_name" content="Public Labs" />
     <meta property="og:locale" content="de_DE" />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/svg+xml" />
 
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
 
     {
       umamiEnabled && (
@@ -103,7 +118,7 @@ const particles = Array.from({ length: PARTICLE_COUNT }, () => {
     </div>
     <div class="grain-fixed" aria-hidden="true" transition:persist transition:name="grain"></div>
 
-    <main class="relative z-[1] min-h-screen">
+    <main class="relative z-[1] min-h-screen" data-page-type={pageType} data-lab-slug={labSlug}>
       <slot />
     </main>
 

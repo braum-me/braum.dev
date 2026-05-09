@@ -111,6 +111,10 @@ const eyebrowLabel = `BRAUM · LABS · ${labIndex} · ${title.toUpperCase()}`;
       data-track-prop-slug={slug}
       data-track-prop-target={cta.external ? "external" : "internal"}
     >
+      <span class="cta-corner tl" aria-hidden="true"></span>
+      <span class="cta-corner tr" aria-hidden="true"></span>
+      <span class="cta-corner bl" aria-hidden="true"></span>
+      <span class="cta-corner br" aria-hidden="true"></span>
       <span class="detail-cta-num">RUN_{labIndex}</span>
       <span class="detail-cta-label">{cta.label}</span>
       <span class="detail-cta-glyph" aria-hidden="true">{cta.external ? "↗" : "→"}</span>
@@ -364,6 +368,25 @@ const eyebrowLabel = `BRAUM · LABS · ${labIndex} · ${title.toUpperCase()}`;
       0 0 0 1px rgba(0, 200, 150, 0.45),
       0 24px 60px -20px rgba(0, 200, 150, 0.4);
   }
+  .cta-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    transition:
+      border-color var(--dur-base) var(--ease-standard),
+      width var(--dur-base) var(--ease-standard),
+      height var(--dur-base) var(--ease-standard);
+  }
+  .cta-corner.tl { top: 6px; left: 6px;  border-top: 1px solid rgba(0, 200, 150, 0.45); border-left: 1px solid rgba(0, 200, 150, 0.45); }
+  .cta-corner.tr { top: 6px; right: 6px; border-top: 1px solid rgba(0, 200, 150, 0.45); border-right: 1px solid rgba(0, 200, 150, 0.45); }
+  .cta-corner.bl { bottom: 6px; left: 6px;  border-bottom: 1px solid rgba(0, 200, 150, 0.45); border-left: 1px solid rgba(0, 200, 150, 0.45); }
+  .cta-corner.br { bottom: 6px; right: 6px; border-bottom: 1px solid rgba(0, 200, 150, 0.45); border-right: 1px solid rgba(0, 200, 150, 0.45); }
+  .detail-cta:hover .cta-corner {
+    border-color: var(--mint);
+    width: 20px;
+    height: 20px;
+  }
   .detail-cta.is-soon {
     pointer-events: none;
     opacity: 0.55;
@@ -514,6 +537,42 @@ const eyebrowLabel = `BRAUM · LABS · ${labIndex} · ${title.toUpperCase()}`;
     }
     .detail-meta-cell {
       border-right: 0;
+    }
+    .detail-back {
+      margin: 32px 0 24px;
+    }
+    .detail-hero-title-link {
+      gap: 12px;
+      padding-right: 0;
+    }
+    .detail-hero-title {
+      margin-bottom: 16px;
+    }
+  }
+  @media (max-width: 480px) {
+    .labs-page {
+      padding: 20px 16px 32px;
+    }
+    .detail-section {
+      padding: 32px 0;
+    }
+    .detail-cta {
+      font-size: 16px;
+      padding: 16px 14px;
+    }
+    .detail-cta-num {
+      font-size: 10px;
+    }
+    .detail-cta-glyph {
+      font-size: 22px;
+    }
+    .cta-corner {
+      width: 10px;
+      height: 10px;
+    }
+    .detail-cta:hover .cta-corner {
+      width: 14px;
+      height: 14px;
     }
   }
 </style>

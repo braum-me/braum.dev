@@ -2,7 +2,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="404 · Public Labs" description="Diese Route existiert nicht." noindex={true}>
+<BaseLayout title="404 · Public Labs" description="Diese Route existiert nicht." noindex={true} pageType="404">
   <div class="err-wrap">
     <div class="err-eyebrow">BRAUM · LABS · 404</div>
     <h1 class="err-title">Diese Route gibt es nicht.</h1>
@@ -11,7 +11,7 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
     </p>
     <div class="err-actions">
       <a class="btn primary" href="/">← Zur Labs-Übersicht</a>
-      <a class="btn secondary" href="/ai-stack-fit">AI-Stack-Fit öffnen</a>
+      <a class="btn secondary" href="/labs/ai-stack-fit">AI-Stack-Fit öffnen</a>
     </div>
   </div>
 </BaseLayout>

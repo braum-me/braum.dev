@@ -3,8 +3,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const reduced = (): boolean =>
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduced = (): boolean => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ── DIY SplitText ─────────────────────────────────────────────── */
 function splitChars(el: HTMLElement): HTMLElement[] {
@@ -29,7 +28,9 @@ function splitChars(el: HTMLElement): HTMLElement[] {
 
 /* ── Init ──────────────────────────────────────────────────────── */
 function initAnimations(): void {
-  ScrollTrigger.getAll().forEach((t) => t.kill());
+  for (const t of ScrollTrigger.getAll()) {
+    t.kill();
+  }
 
   if (reduced()) {
     // Make sure split chars are visible if we previously animated them out
@@ -182,11 +183,25 @@ function initAnimations(): void {
   });
 }
 
-/* ── Generic tracking via [data-track] attributes ──────────────
-   Any element with data-track="<event-name>" will fire that event
-   on click. data-track-prop-foo="bar" attributes turn into payload.
-   Idempotent: rebinds across view-transitions safely. */
-function bindTracking(): void {
+/* ── Tracking ───────────────────────────────────────────────────
+   Wraps Umami in a try/catch so tracking failures never break the page.
+   Three event-sources:
+     - click events bound via [data-track] attributes
+     - page-view fired once per navigation, derived from <main data-page-type>
+     - section.view + scroll.depth via IntersectionObserver on detail pages */
+function trackSafe(event: string, data?: Record<string, string | number>): void {
+  try {
+    const umami = (window as unknown as { umami?: { track?: (e: string, d?: unknown) => void } })
+      .umami;
+    umami?.track?.(event, data);
+  } catch {
+    // never break the app on a tracking failure
+  }
+}
+
+/* Click-based tracking via [data-track] attributes. Idempotent: rebinds
+   across view-transitions safely. */
+function bindClickTracking(): void {
   const elements = document.querySelectorAll<HTMLElement>("[data-track]");
   for (const el of elements) {
     if (el.dataset.trackBound === "1") continue;
@@ -202,19 +217,115 @@ function bindTracking(): void {
           if (value !== undefined) data[prop] = value;
         }
       }
-      try {
-        const umami = (window as unknown as { umami?: { track?: (e: string, d?: unknown) => void } }).umami;
-        umami?.track?.(event, data);
-      } catch {
-        // never break navigation on tracking failure
-      }
+      trackSafe(event, data);
     });
+  }
+}
+
+/* Fire one synthetic page-view per navigation. Derives event name and
+   payload from <main data-page-type> + <main data-lab-slug>. */
+function trackPageView(): void {
+  const main = document.querySelector<HTMLElement>("main[data-page-type]");
+  if (!main) return;
+  const pageType = main.dataset.pageType;
+  const slug = main.dataset.labSlug;
+  if (pageType === "home") trackSafe("home.viewed");
+  else if (pageType === "lab" && slug) trackSafe("lab.detail.viewed", { slug });
+  else if (pageType === "404") trackSafe("lab.404", { path: location.pathname });
+}
+
+/* IntersectionObserver-based section-view + scroll-depth tracking.
+   Only active on detail pages (pageType=lab). Each section/milestone
+   fires at most once per page-load. */
+let depthObserver: IntersectionObserver | null = null;
+let sectionObserver: IntersectionObserver | null = null;
+
+function bindDetailScrollTracking(): void {
+  // Tear down any observer from a previous navigation.
+  if (depthObserver) {
+    depthObserver.disconnect();
+    depthObserver = null;
+  }
+  if (sectionObserver) {
+    sectionObserver.disconnect();
+    sectionObserver = null;
+  }
+
+  const main = document.querySelector<HTMLElement>("main[data-page-type='lab']");
+  if (!main) return;
+  const slug = main.dataset.labSlug;
+  if (!slug) return;
+
+  // Section-view events for why/how/stack/cta
+  const sectionTargets = main.querySelectorAll<HTMLElement>("[data-anim-group]");
+  if (sectionTargets.length > 0) {
+    const seen = new Set<string>();
+    sectionObserver = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const section = (e.target as HTMLElement).dataset.animGroup;
+          if (!section || seen.has(section)) continue;
+          if (section === "hero" || section === "meta") continue; // visible above the fold
+          seen.add(section);
+          trackSafe("lab.detail.section.view", { slug, section });
+        }
+      },
+      { threshold: 0.55 },
+    );
+    for (const t of sectionTargets) sectionObserver.observe(t);
+  }
+
+  // Scroll-depth milestones — sentinels positioned at 25/50/75/100% of body.
+  // We use sentinels instead of scroll-listeners to keep it cheap and SSR-safe.
+  const milestones: Array<25 | 50 | 75 | 100> = [25, 50, 75, 100];
+  const seenDepth = new Set<number>();
+
+  // Remove any leftover sentinels from a previous nav.
+  for (const el of document.querySelectorAll(".depth-sentinel")) {
+    el.remove();
+  }
+
+  // Use document height; if too short, skip depth tracking.
+  const docHeight = document.documentElement.scrollHeight;
+  if (docHeight < window.innerHeight * 1.4) return;
+
+  depthObserver = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const depth = Number((e.target as HTMLElement).dataset.depth);
+        if (!seenDepth.has(depth)) {
+          seenDepth.add(depth);
+          trackSafe("lab.detail.scroll.depth", { slug, depth });
+        }
+      }
+    },
+    { threshold: 0 },
+  );
+
+  for (const pct of milestones) {
+    const sentinel = document.createElement("div");
+    sentinel.className = "depth-sentinel";
+    sentinel.dataset.depth = String(pct);
+    Object.assign(sentinel.style, {
+      position: "absolute",
+      left: "0",
+      top: `${pct}%`,
+      width: "1px",
+      height: "1px",
+      pointerEvents: "none",
+    });
+    document.body.appendChild(sentinel);
+    depthObserver.observe(sentinel);
   }
 }
 
 function initAll(): void {
   initAnimations();
-  bindTracking();
+  bindClickTracking();
+  trackPageView();
+  bindDetailScrollTracking();
 }
 
 /* Run on initial load + after every view-transition. */
