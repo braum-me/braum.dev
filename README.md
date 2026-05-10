@@ -2,7 +2,7 @@
 
 Public hub for small tools, experiments, and half-finished ideas. Some labs live on this domain (`/labs/<slug>`), others have their own domain and are linked out.
 
-Sister site: [braum.org](https://braum.org) — AI-Stack-Fit, the consulting-flavoured tool, lives there standalone.
+**Live:** [braum.dev](https://braum.dev) · **Sister site:** [braum.org](https://braum.org) (AI-Stack-Fit standalone)
 
 ## Stack
 
@@ -15,6 +15,7 @@ Sister site: [braum.org](https://braum.org) — AI-Stack-Fit, the consulting-fla
 - Biome for lint and format
 - Multi-stage Dockerfile, runs as non-root on Node 22-alpine
 - Umami self-hosted analytics (env-driven)
+- Pre-rendered, brand-locked OG cards (`@resvg/resvg-js`)
 
 ## Quick start
 
@@ -26,14 +27,15 @@ pnpm dev              # http://localhost:4323
 
 ## Scripts
 
-| Command         | Action                                |
-| --------------- | ------------------------------------- |
-| `pnpm dev`      | Local dev server (port 4323)          |
-| `pnpm build`    | Type check + production build         |
-| `pnpm preview`  | Serve the built output                |
-| `pnpm check`    | `astro check && tsc --noEmit`         |
-| `pnpm lint`     | Biome lint                            |
-| `pnpm format`   | Biome write-formatter                 |
+| Command          | Action                                              |
+| ---------------- | --------------------------------------------------- |
+| `pnpm dev`       | Local dev server (port 4323)                        |
+| `pnpm build`     | Type check + production build                       |
+| `pnpm preview`   | Serve the built output                              |
+| `pnpm check`     | `astro check && tsc --noEmit`                       |
+| `pnpm lint`      | Biome lint                                          |
+| `pnpm format`    | Biome write-formatter                               |
+| `pnpm og:build`  | Re-render the OG cards in `public/og/` from SVG     |
 
 ## Layout
 
@@ -78,7 +80,22 @@ docker run --rm -p 4323:4323 \
   braum-dev
 ```
 
-`HEALTHCHECK` hits `GET /api/health` every 30 s.
+`HEALTHCHECK` hits `GET /api/health` every 30 s. The healthcheck reads
+`PORT` at runtime, so an orchestrator may override the default 4323.
+
+## OG cards
+
+Per-lab social-share PNGs are pre-rendered at build time from the SVG
+templates in `src/lib/og.ts`, written to `public/og/<slug>.png`. Brand
+fonts (Inter, Geist, JetBrains Mono — all OFL) live in `assets/fonts-og/`
+and are loaded only by the build script, not shipped to clients.
+
+```bash
+pnpm og:build
+```
+
+`BaseLayout.astro` rewires `og:image` and `twitter:image` per page based
+on `pageType="lab"` + `labSlug="<slug>"`.
 
 ## License
 
