@@ -32,9 +32,15 @@ const eyebrowLabel = `BRAUM · LABS · ${labIndex} · ${title.toUpperCase()}`;
   <LabHeader eyebrow={eyebrowLabel} />
 
   <section class="detail-hero" data-anim-group="hero">
-    <a href="/" class="detail-back" data-anim="back-link">
-      <span aria-hidden="true">←</span> ZURÜCK ZUM INDEX
-    </a>
+    <nav aria-label="Breadcrumb">
+      <ol class="detail-breadcrumb-list">
+        <li><a href="/">Braum Labs</a></li>
+        <li aria-current="page">{title}</li>
+      </ol>
+      <a href="/" class="detail-back" data-anim="back-link">
+        <span aria-hidden="true">←</span> ZURÜCK ZUM INDEX
+      </a>
+    </nav>
 
     <div class="detail-hero-row">
       <div class="detail-hero-left">
@@ -79,21 +85,21 @@ const eyebrowLabel = `BRAUM · LABS · ${labIndex} · ${title.toUpperCase()}`;
   </section>
 
   <section class="detail-section" data-anim-group="why">
-    <div class="detail-section-marker" data-anim="marker">// why</div>
+    <h2 class="detail-section-marker" data-anim="marker">// Warum</h2>
     <div class="detail-section-body">
       <slot name="why" />
     </div>
   </section>
 
   <section class="detail-section" data-anim-group="how">
-    <div class="detail-section-marker" data-anim="marker">// how</div>
+    <h2 class="detail-section-marker" data-anim="marker">// Funktionsweise</h2>
     <div class="detail-section-body">
       <slot name="how" />
     </div>
   </section>
 
   <section class="detail-section" data-anim-group="stack">
-    <div class="detail-section-marker" data-anim="marker">// stack</div>
+    <h2 class="detail-section-marker" data-anim="marker">// Tech-Stack</h2>
     <div class="detail-section-body">
       <slot name="stack" />
     </div>
@@ -142,6 +148,24 @@ const eyebrowLabel = `BRAUM · LABS · ${labIndex} · ${title.toUpperCase()}`;
     margin: 0 auto;
     padding: 32px 56px 48px;
     position: relative;
+  }
+
+  .detail-breadcrumb-list {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    list-style: none;
+  }
+
+  .detail-section-marker {
+    margin: 0;
+    font-weight: inherit;
   }
 
   .detail-back {

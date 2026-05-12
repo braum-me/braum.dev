@@ -1,0 +1,91 @@
+---
+interface Props {
+  pageType: "home" | "lab" | "404";
+  title: string;
+  description: string;
+  canonicalUrl: string;
+  siteUrl: string;
+  labSlug?: string;
+}
+
+const { pageType, title, description, canonicalUrl, siteUrl, labSlug } = Astro.props;
+
+const labNameMap: Record<string, string> = {
+  "ai-stack-fit": "AI-Stack-Fit",
+  "agi-jetzt": "agi.jetzt",
+};
+const labDisplayName = labSlug ? (labNameMap[labSlug] ?? labSlug) : undefined;
+
+const org = {
+  "@type": "Organization",
+  "@id": `${siteUrl}/#organization`,
+  name: "Braum Labs",
+  url: siteUrl,
+  logo: {
+    "@type": "ImageObject",
+    url: `${siteUrl}/favicon.svg`,
+  },
+  sameAs: ["https://github.com/braum-me/braum.dev", "https://braum.consulting"],
+};
+
+const website = {
+  "@type": "WebSite",
+  "@id": `${siteUrl}/#website`,
+  url: siteUrl,
+  name: "Braum Labs",
+  description: "Selbst gehostete KI-Tools und Tech-Experimente.",
+  publisher: { "@id": `${siteUrl}/#organization` },
+  inLanguage: "de-DE",
+};
+
+type SchemaNode = Record<string, unknown>;
+let graph: SchemaNode[] = [];
+
+if (pageType === "home") {
+  graph = [
+    org,
+    website,
+    {
+      "@type": "WebPage",
+      "@id": `${canonicalUrl}#webpage`,
+      url: canonicalUrl,
+      name: title,
+      isPartOf: { "@id": `${siteUrl}/#website` },
+      about: { "@id": `${siteUrl}/#organization` },
+      description,
+      inLanguage: "de-DE",
+    },
+  ];
+} else if (pageType === "lab" && labDisplayName && labSlug) {
+  const labUrl = `${siteUrl}/labs/${labSlug}`;
+  graph = [
+    org,
+    website,
+    {
+      "@type": "WebPage",
+      "@id": `${labUrl}/#webpage`,
+      url: labUrl,
+      name: title,
+      isPartOf: { "@id": `${siteUrl}/#website` },
+      description,
+      inLanguage: "de-DE",
+      breadcrumb: { "@id": `${labUrl}/#breadcrumb` },
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${labUrl}/#breadcrumb`,
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Braum Labs", item: siteUrl },
+        { "@type": "ListItem", position: 2, name: labDisplayName, item: labUrl },
+      ],
+    },
+  ];
+}
+
+const jsonLd =
+  graph.length > 0
+    ? JSON.stringify({ "@context": "https://schema.org", "@graph": graph })
+    : null;
+---
+
+{jsonLd && <script is:inline type="application/ld+json" set:html={jsonLd} />}
