@@ -4,6 +4,8 @@ Public hub for small tools, experiments, and half-finished ideas. Some labs live
 
 **Live:** [braum.dev](https://braum.dev) · **Sister site:** [braum.org](https://braum.org) (AI-Stack-Fit standalone)
 
+![Preview](.github/preview.png)
+
 ## Stack
 
 - Astro 5 standalone SSR (`@astrojs/node`)
