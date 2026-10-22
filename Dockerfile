@@ -4,7 +4,7 @@
 # Node 22 LTS Alpine · pnpm · Astro SSR (Node-Adapter)
 # =============================================================================
 
-ARG NODE_VERSION=22-alpine
+ARG NODE_VERSION=22.23.4-alpine
 
 # -----------------------------------------------------------------------------
 # Stage 1: Dependencies
