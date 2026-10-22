@@ -1,7 +1,7 @@
 import node from "@astrojs/node";
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "astro/config";
+import { defineConfig, passthroughImageService } from "astro/config";
 
 export default defineConfig({
   output: "server",
@@ -17,6 +17,11 @@ export default defineConfig({
     build: {
       cssMinify: "lightningcss",
     },
+  },
+  // Kein Bildoptimierungs-Service: die Site liefert nur vorgefertigte Assets aus.
+  // Reduziert die Angriffsfläche (sharp/libheif/libvips) des SSR-Endpoints /_image.
+  image: {
+    service: passthroughImageService(),
   },
   compressHTML: true,
   build: {
